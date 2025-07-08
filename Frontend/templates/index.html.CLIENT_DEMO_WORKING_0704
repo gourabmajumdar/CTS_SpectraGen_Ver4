@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTS SpectraGen Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -582,7 +581,7 @@
                                 Review Code Quality
                             </button>
                             <button class="btn-secondary" onclick="deployCode()" id="deployAppBtn" disabled>
-                                Build & Deploy
+                                Deploy & Test
                             </button>
                         </div>
 
@@ -953,110 +952,6 @@
                             <div class="analysis-list" id="patternsList"></div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Analytics Content Section - UPDATED STRUCTURE -->
-            <div class="analytics-content hide" id="analyticsContent">
-                <div class="analytics-header">
-                    <h2>📊 Analytics Dashboard</h2>
-                    <p>Track your development and testing workflow performance</p>
-                </div>
-
-                <!-- TOP ROW: Counters, Bar Chart, Summary -->
-                <div class="analytics-main-grid">
-                    <!-- Analytics Counters -->
-                    <div class="analytics-counters">
-                        <div class="counters-title">Workflow Counters</div>
-                        <div class="stats-grid">
-                            <div class="stat-card qa-tests">
-                                <span class="stat-icon">🧪</span>
-                                <div class="stat-value" id="qaTestsGenerated">0</div>
-                                <div class="stat-label">Test Scripts Generated</div>
-                            </div>
-
-                            <div class="stat-card qa-reviews">
-                                <span class="stat-icon">🔍</span>
-                                <div class="stat-value" id="qaTestsReviewed">0</div>
-                                <div class="stat-label">Test Scripts Reviewed</div>
-                            </div>
-
-                            <div class="stat-card dev-code">
-                                <span class="stat-icon">💻</span>
-                                <div class="stat-value" id="devCodeGenerated">0</div>
-                                <div class="stat-label">Application Code Generated</div>
-                            </div>
-
-                            <div class="stat-card dev-tests">
-                                <span class="stat-icon">⚡</span>
-                                <div class="stat-value" id="devUnittestsGenerated">0</div>
-                                <div class="stat-label">Unit Tests Generated</div>
-                            </div>
-
-                            <div class="stat-card dev-reviews">
-                                <span class="stat-icon">📋</span>
-                                <div class="stat-value" id="devCodeReviewed">0</div>
-                                <div class="stat-label">Application Code Reviewed</div>
-                            </div>
-
-                            <div class="stat-card dev-unit-reviews">
-                                <span class="stat-icon">🔬</span>
-                                <div class="stat-value" id="devUnittestsReviewed">0</div>
-                                <div class="stat-label">Unit Tests Reviewed</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bar Chart -->
-                    <div class="analytics-bar-chart">
-                        <div class="chart-title">Code Generation Overview</div>
-                        <canvas id="barChart" width="400" height="300"></canvas>
-                    </div>
-
-                    <!-- Summary Statistics -->
-                    <div class="analytics-summary-compact">
-                        <div class="summary-title">Summary Statistics</div>
-                        <div class="summary-stats">
-                            <div class="summary-item">
-                                <div class="summary-value" id="totalGenerated">0</div>
-                                <div class="summary-label">Total Generated</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value" id="totalReviewed">0</div>
-                                <div class="summary-label">Total Reviewed</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value" id="reviewPercentage">0%</div>
-                                <div class="summary-label">Review Rate</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-value" id="mostActiveWorkflow">-</div>
-                                <div class="summary-label">Most Active Workflow</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOTTOM ROW: Pie Chart and Line Chart -->
-                <div class="analytics-bottom-grid">
-                    <!-- Pie Chart -->
-                    <div class="analytics-pie-chart">
-                        <div class="chart-title">Review Activity Distribution</div>
-                        <canvas id="pieChart" width="400" height="300"></canvas>
-                    </div>
-
-                    <!-- Line Chart -->
-                    <div class="analytics-line-chart">
-                        <div class="chart-title">Workflow Activity Timeline</div>
-                        <canvas id="lineChart" width="800" height="400"></canvas>
-                    </div>
-                </div>
-
-                <!-- Footer with Reset Button -->
-                <div class="analytics-footer">
-                    <button class="reset-button" onclick="resetAnalytics()">
-                        🔄 Reset All Analytics
-                    </button>
                 </div>
             </div>
         </div>

@@ -49,20 +49,6 @@ const elements = {
     toastMessage: null
 };
 
-// Analytics Data Store
-let analyticsData = {
-    qaTestsGenerated: 0,
-    qaTestsReviewed: 0,
-    devCodeGenerated: 0,
-    devUnittestsGenerated: 0,
-    devCodeReviewed: 0,
-    devUnittestsReviewed: 0,
-    timeline: []
-};
-
-// Chart instances
-let barChart, pieChart, lineChart;
-
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -89,11 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize UI state
     updateCharCount();
     initializeHomePage();
-
-    // Initialize analytics when page loads
-    loadAnalyticsData();
-    initializeCharts();
-    updateAnalyticsDisplay();
 
     console.log('✅ Dashboard initialized successfully');
 });
@@ -1722,14 +1703,6 @@ function hideAllModeContent() {
         codebaseManagerContent.style.display = 'none';
     }
 
-    // ADD THIS SECTION: Hide Analytics content
-    const analyticsContent = document.getElementById('analyticsContent');
-    if (analyticsContent) {
-        analyticsContent.classList.remove('show');
-        analyticsContent.classList.add('hide');
-        analyticsContent.style.display = 'none';
-    }
-
     // Hide any multi-test areas that might have been created
     const multiTestContainer = document.getElementById('multiTestContainer');
     if (multiTestContainer) {
@@ -1854,338 +1827,6 @@ function showAutoTest() {
     }
 
     console.log('✅ AutoTest page displayed');
-}
-
-// ===============================================
-// ANALYTICS FUNCTIONS
-// ===============================================
-
-// Load analytics data from localStorage
-function loadAnalyticsData() {
-    const savedData = localStorage.getItem('analyticsData');
-    if (savedData) {
-        analyticsData = JSON.parse(savedData);
-    }
-}
-
-// Save analytics data to localStorage
-function saveAnalyticsData() {
-    localStorage.setItem('analyticsData', JSON.stringify(analyticsData));
-}
-
-// Update analytics counters
-function updateAnalyticsCounter(type, count = 1) {
-    console.log(`📊 Updating analytics counter: ${type}`);
-
-    if (analyticsData.hasOwnProperty(type)) {
-        //analyticsData[type]++;
-        // Use the provided count or default to 1
-        analyticsData[type] += count;
-
-        // Add to timeline
-        analyticsData.timeline.push({
-            type: type,
-            timestamp: new Date().toISOString(),
-            count: analyticsData[type],
-            increment: count // Track how much was added this time
-        });
-
-        // Keep only last 50 timeline entries
-        if (analyticsData.timeline.length > 50) {
-            analyticsData.timeline = analyticsData.timeline.slice(-50);
-        }
-
-        saveAnalyticsData();
-        updateAnalyticsDisplay();
-        updateCharts();
-
-        console.log(`✅ ${type} updated by ${count} to total: ${analyticsData[type]}`);
-    } else {
-        console.warn(`⚠️ Unknown analytics type: ${type}`);
-    }
-}
-
-// Update all display elements
-function updateAnalyticsDisplay() {
-    // Update stat cards
-    document.getElementById('qaTestsGenerated').textContent = analyticsData.qaTestsGenerated;
-    document.getElementById('qaTestsReviewed').textContent = analyticsData.qaTestsReviewed;
-    document.getElementById('devCodeGenerated').textContent = analyticsData.devCodeGenerated;
-    document.getElementById('devUnittestsGenerated').textContent = analyticsData.devUnittestsGenerated;
-    document.getElementById('devCodeReviewed').textContent = analyticsData.devCodeReviewed;
-    document.getElementById('devUnittestsReviewed').textContent = analyticsData.devUnittestsReviewed;
-
-    // Update summary statistics
-    const totalGenerated = analyticsData.qaTestsGenerated + analyticsData.devCodeGenerated + analyticsData.devUnittestsGenerated;
-    const totalReviewed = analyticsData.qaTestsReviewed + analyticsData.devCodeReviewed + analyticsData.devUnittestsReviewed;
-    const reviewPercentage = totalGenerated > 0 ? Math.round((totalReviewed / totalGenerated) * 100) : 0;
-
-    document.getElementById('totalGenerated').textContent = totalGenerated;
-    document.getElementById('totalReviewed').textContent = totalReviewed;
-    document.getElementById('reviewPercentage').textContent = reviewPercentage + '%';
-
-    // Determine most active workflow
-    const qaTotal = analyticsData.qaTestsGenerated + analyticsData.qaTestsReviewed;
-    const devTotal = analyticsData.devCodeGenerated + analyticsData.devUnittestsGenerated +
-                    analyticsData.devCodeReviewed + analyticsData.devUnittestsReviewed;
-
-    const mostActive = qaTotal > devTotal ? 'QA Testing' : devTotal > qaTotal ? 'Development' : 'Equal';
-    document.getElementById('mostActiveWorkflow').textContent = mostActive;
-}
-
-// Show analytics content
-function showAnalytics() {
-    hideAllModeContent();
-    console.log('📊 Showing Analytics Dashboard');
-
-    // Hide all other content
-    document.querySelectorAll('.welcome-message, .developer-content, .qa-content, .codebase-content').forEach(content => {
-        content.classList.remove('show');
-        content.classList.add('hide');
-        content.style.display = 'none';
-    });
-
-    // Update navigation state
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    const analyticsNavItem = document.querySelectorAll('.nav-item')[4]; // Analytics nav item
-    if (analyticsNavItem) analyticsNavItem.classList.add('active');
-
-    // Show analytics content
-    const analyticsContent = document.getElementById('analyticsContent');
-    if (analyticsContent) {
-        analyticsContent.classList.remove('hide');
-        analyticsContent.classList.add('show');
-        analyticsContent.style.display = 'block';
-    }
-
-    // Update dashboard title
-    const dashboardTitle = document.getElementById('dashboardTitle');
-    if (dashboardTitle) dashboardTitle.textContent = '';
-
-    // Hide mode indicator on analytics page
-    const modeIndicator = document.getElementById('modeIndicator');
-    if (modeIndicator) modeIndicator.style.display = 'none';
-
-    // Refresh data and charts
-    loadAnalyticsData();
-    updateAnalyticsDisplay();
-    updateCharts();
-
-    console.log('✅ Analytics dashboard displayed');
-}
-
-// Reset all analytics data
-function resetAnalytics() {
-    if (confirm('Are you sure you want to reset all analytics data? This action cannot be undone.')) {
-        analyticsData = {
-            qaTestsGenerated: 0,
-            qaTestsReviewed: 0,
-            devCodeGenerated: 0,
-            devUnittestsGenerated: 0,
-            devCodeReviewed: 0,
-            devUnittestsReviewed: 0,
-            timeline: []
-        };
-
-        saveAnalyticsData();
-        updateAnalyticsDisplay();
-        updateCharts();
-
-        console.log('🔄 Analytics data reset successfully');
-        alert('Analytics data has been reset successfully!');
-    }
-}
-
-// Initialize all charts
-function initializeCharts() {
-    initializeBarChart();
-    initializePieChart();
-    initializeLineChart();
-}
-
-// Initialize bar chart
-function initializeBarChart() {
-    const ctx = document.getElementById('barChart').getContext('2d');
-    barChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['QA Tests', 'Dev Code', 'Unit Tests'],
-            datasets: [{
-                label: 'Generated',
-                data: [analyticsData.qaTestsGenerated, analyticsData.devCodeGenerated, analyticsData.devUnittestsGenerated],
-                backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6'],
-                borderColor: ['#059669', '#2563eb', '#7c3aed'],
-                borderWidth: 2,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Initialize pie chart
-function initializePieChart() {
-    const ctx = document.getElementById('pieChart').getContext('2d');
-    pieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['QA Reviews', 'Code Reviews', 'Unit Test Reviews'],
-            datasets: [{
-                data: [analyticsData.qaTestsReviewed, analyticsData.devCodeReviewed, analyticsData.devUnittestsReviewed],
-                backgroundColor: ['#f59e0b', '#ef4444', '#06b6d4'],
-                borderColor: ['#d97706', '#dc2626', '#0891b2'],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-}
-
-// Initialize line chart
-function initializeLineChart() {
-    const ctx = document.getElementById('lineChart').getContext('2d');
-
-    // Process timeline data for line chart
-    const timelineData = processTimelineData();
-
-    lineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: timelineData.labels,
-            datasets: [
-                {
-                    label: 'Code Generated',
-                    data: timelineData.generated,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Code Reviewed',
-                    data: timelineData.reviewed,
-                    borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'top'
-                }
-            }
-        }
-    });
-}
-
-// Process timeline data for charts
-function processTimelineData() {
-    const last24Hours = [];
-    const now = new Date();
-
-    // Create labels for last 24 hours (every 2 hours)
-    for (let i = 23; i >= 0; i -= 2) {
-        const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-        last24Hours.push(time.getHours().toString().padStart(2, '0') + ':00');
-    }
-
-    // Initialize data arrays
-    const generatedData = new Array(last24Hours.length).fill(0);
-    const reviewedData = new Array(last24Hours.length).fill(0);
-
-    // Process timeline events
-    analyticsData.timeline.forEach(event => {
-        const eventTime = new Date(event.timestamp);
-        const hoursDiff = Math.floor((now - eventTime) / (1000 * 60 * 60));
-        const index = Math.floor((23 - hoursDiff) / 2);
-
-        if (index >= 0 && index < last24Hours.length) {
-            if (event.type.includes('Generated')) {
-                generatedData[index]++;
-            } else if (event.type.includes('Reviewed')) {
-                reviewedData[index]++;
-            }
-        }
-    });
-
-    return {
-        labels: last24Hours,
-        generated: generatedData,
-        reviewed: reviewedData
-    };
-}
-
-// Update all charts
-function updateCharts() {
-    // Update bar chart
-    if (barChart) {
-        barChart.data.datasets[0].data = [
-            analyticsData.qaTestsGenerated,
-            analyticsData.devCodeGenerated,
-            analyticsData.devUnittestsGenerated
-        ];
-        barChart.update();
-    }
-
-    // Update pie chart
-    if (pieChart) {
-        pieChart.data.datasets[0].data = [
-            analyticsData.qaTestsReviewed,
-            analyticsData.devCodeReviewed,
-            analyticsData.devUnittestsReviewed
-        ];
-        pieChart.update();
-    }
-
-    // Update line chart
-    if (lineChart) {
-        const timelineData = processTimelineData();
-        lineChart.data.labels = timelineData.labels;
-        lineChart.data.datasets[0].data = timelineData.generated;
-        lineChart.data.datasets[1].data = timelineData.reviewed;
-        lineChart.update();
-    }
 }
 
 // ================================================================================================
@@ -3127,7 +2768,6 @@ async function generateApplicationCode() {
             console.log('[DEBUG] After assignment - generatedApplicationCode length:', generatedApplicationCode ? generatedApplicationCode.length : 'null');
             await delay(1000);
 
-            updateAnalyticsCounter('devCodeGenerated');
             displayGeneratedApplicationCodeInTab(generatedCode);
 
             // Enable review button
@@ -3177,7 +2817,6 @@ async function generateApplicationCode() {
             // EXISTING: Display generated code in the tab editor
             const generatedCode = result.generated_code || [];
             generatedApplicationCode = result.generated_code;
-            updateAnalyticsCounter('devCodeGenerated');
             displayGeneratedApplicationCodeInTab(generatedCode);
 
             // EXISTING: Enable review button
@@ -3415,9 +3054,6 @@ function downloadApplicationCode(index) {
 function displayDeveloperUnittestReviewResults() {
     console.log('🧪 [DEVELOPER] Displaying unittest review results');
 
-    // Track application code review
-    updateAnalyticsCounter('devUnittestsReviewed');
-
     // Try to read summary2.txt (unittest review summary)
     fetch('/get-unittest-review-summary')
         .then(response => response.json())
@@ -3626,7 +3262,6 @@ async function reviewApplicationCode() {
                 });
 
                 showToast(`Application code review completed for ${result.individual_reports.length} file(s)! Check each tab for detailed results.`, 'success');
-                updateAnalyticsCounter('devCodeReviewed');
             } else {
                 // Fallback for single code file or different format
                 console.log('📋 Processing single application code review');
@@ -5349,7 +4984,7 @@ function createBulkDownloadControls() {
         border-radius: 15px;
         padding: 20px;
         margin: 20px 0;
-        display: block;
+        display: none;
         box-shadow: 0 4px 15px rgba(100, 116, 139, 0.15);
         animation: slideInFromTop 0.5s ease-out;
         position: relative;
@@ -5470,7 +5105,6 @@ function createBulkDownloadControls() {
     `;
 
     // *** CHANGED: Insert after buttons instead of at end of multiTestAreas ***
-    /*
     const buttonsContainer = document.querySelector('.buttons');
     if (buttonsContainer && buttonsContainer.parentNode) {
         // Insert right after the buttons container
@@ -5478,23 +5112,6 @@ function createBulkDownloadControls() {
         console.log('✅ Bulk controls inserted after main buttons');
     } else {
         // Fallback: insert before multiTestAreas if buttons not found
-        const multiTestAreas = document.getElementById('multiTestAreas');
-        if (multiTestAreas && multiTestAreas.parentNode) {
-            multiTestAreas.parentNode.insertBefore(bulkControls, multiTestAreas);
-            console.log('✅ Bulk controls inserted before multi-test areas (fallback)');
-        }
-    }
-     */
-    // Insert specifically after QA buttons
-    const qaContent = document.getElementById('qaContent');
-    const qaButtons = qaContent ? qaContent.querySelector('.buttons') : null;
-
-    if (qaButtons && qaButtons.parentNode) {
-        // Insert right after the QA buttons container
-        qaButtons.parentNode.insertBefore(bulkControls, qaButtons.nextSibling);
-        console.log('✅ Bulk controls inserted after QA buttons');
-    } else {
-        // Fallback: insert before multiTestAreas
         const multiTestAreas = document.getElementById('multiTestAreas');
         if (multiTestAreas && multiTestAreas.parentNode) {
             multiTestAreas.parentNode.insertBefore(bulkControls, multiTestAreas);
@@ -5531,7 +5148,7 @@ function addIndividualDownloadCheckboxes() {
             const checkboxContainer = document.createElement('div');
             checkboxContainer.className = 'download-checkbox-container';
             checkboxContainer.style.cssText = `
-                display: block;
+                display: none;
                 background: rgba(255, 255, 255, 0.25);
                 border-radius: 8px;
                 padding: 6px 10px;
@@ -5668,20 +5285,10 @@ function createCompactBulkDownloadButton() {
     `;
 
     // Insert right after the main buttons
-    /*
     const buttonsContainer = document.querySelector('.buttons');
     if (buttonsContainer && buttonsContainer.parentNode) {
         buttonsContainer.parentNode.insertBefore(buttonContainer, buttonsContainer.nextSibling);
         console.log('✅ Compact bulk download button created in header');
-    }
-     */
-    // Insert specifically after QA buttons
-    const qaContent = document.getElementById('qaContent');
-    const qaButtons = qaContent ? qaContent.querySelector('.buttons') : null;
-
-    if (qaButtons && qaButtons.parentNode) {
-        qaButtons.parentNode.insertBefore(buttonContainer, qaButtons.nextSibling);
-        console.log('✅ Compact bulk download button created after QA buttons');
     }
 }
 
@@ -6467,9 +6074,6 @@ async function generateCode() {
             // Store generated scripts
             generatedScripts = result.generated_scripts;
 
-            const actualCount = generatedScripts ? generatedScripts.length : 1;
-            updateAnalyticsCounter('qaTestsGenerated', actualCount);
-
             // Create multi test areas OR show single area
             if (generatedScripts.length > 1) {
                 createMultiTestAreas();
@@ -6607,10 +6211,6 @@ async function reviewCode() {
             // NEW: HIDE BULK DOWNLOAD CONTROLS IMMEDIATELY WHEN REVIEW STARTS
             console.log('🗂️ Hiding bulk download controls - transitioning to review state');
             hideBulkDownloadControls();
-            // Pass the actual number of reviewed scripts
-            const actualCount = result.individual_reports ? result.individual_reports.length : 1;
-            updateAnalyticsCounter('qaTestsReviewed', actualCount);
-            //updateAnalyticsCounter('qaTestsReviewed');
 
             // Also remove the compact trigger button completely
             const compactButton = document.getElementById('compactBulkDownloadContainer');
@@ -7771,148 +7371,6 @@ ${singleResult.stderr}
         } else {
             showToast('Code execution failed: ' + error.message, 'error');
         }
-    }
-}
-
-// ===========================================
-// BUILD AND DEPLOY (PREVIEW ONLY)
-//============================================
-function deployCode() {
-    console.log('🚀 Deploy Code button clicked - showing deploy workflow preview');
-
-    // Create modal overlay
-    const modalOverlay = document.createElement('div');
-    modalOverlay.id = 'deployModalOverlay';
-    modalOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        animation: fadeIn 0.3s ease-out;
-    `;
-
-    // Create modal content
-    const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        max-width: 600px;
-        width: 90%;
-        max-height: 80vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        position: relative;
-        animation: slideInScale 0.4s ease-out;
-    `;
-
-    modalContent.innerHTML = `
-        <div style="text-align: center; margin-bottom: 25px;">
-            <h2 style="margin: 0 0 10px 0; color: #1f2937; font-size: 1.8rem; font-weight: 700;">
-                🚀 Build & Deploy Workflow
-            </h2>
-            <p style="margin: 0; color: #6b7280; font-size: 1rem; font-weight: 500;">
-                (Preview Only)
-            </p>
-        </div>
-
-        <div style="background: #f8fafc; border-radius: 12px; padding: 25px; margin-bottom: 25px; border-left: 4px solid #3b82f6;">
-            <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 1.3rem; font-weight: 600;">
-                🔨 BUILD PROCESS
-            </h3>
-            <ul style="margin: 0; padding-left: 20px; color: #374151; line-height: 1.6;">
-                <li style="margin-bottom: 8px;">Checkout code from Git repository</li>
-                <li style="margin-bottom: 8px;">Install dependencies (pip install -r requirements.txt)</li>
-                <li style="margin-bottom: 8px;">Lint & format code (flake8, black, pylint)</li>
-                <li style="margin-bottom: 8px;">Run unit tests and generate coverage reports</li>
-                <li style="margin-bottom: 8px;">Package application (.whl, Docker image, or distribution)</li>
-            </ul>
-        </div>
-
-        <div style="background: #f0fdf4; border-radius: 12px; padding: 25px; margin-bottom: 30px; border-left: 4px solid #10b981;">
-            <h3 style="margin: 0 0 15px 0; color: #059669; font-size: 1.3rem; font-weight: 600;">
-                🚀 DEPLOY PROCESS
-            </h3>
-            <ul style="margin: 0; padding-left: 20px; color: #374151; line-height: 1.6;">
-                <li style="margin-bottom: 8px;">Push artifacts to registry (Docker Hub, PyPI, etc.)</li>
-                <li style="margin-bottom: 8px;">Configure environment (secrets, variables, configs)</li>
-                <li style="margin-bottom: 8px;">Deploy to target environment (server/container/cloud)</li>
-                <li style="margin-bottom: 8px;">Run health checks and smoke tests</li>
-                <li style="margin-bottom: 8px;">Monitor deployment logs and application metrics</li>
-            </ul>
-        </div>
-
-        <div style="background: #fef3c7; border-radius: 10px; padding: 15px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">
-            <p style="margin: 0; color: #92400e; font-size: 0.9rem; font-weight: 500;">
-                <strong>⚠️ Note:</strong> This is a preview of the deployment workflow. 
-                Actual deployment would require CI/CD pipeline configuration and target environment setup.
-            </p>
-        </div>
-
-        <div style="text-align: center;">
-            <button id="closeDeployModal" style="
-                background: linear-gradient(135deg, #6366f1, #4f46e5);
-                color: white;
-                border: none;
-                padding: 12px 30px;
-                border-radius: 10px;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(99, 102, 241, 0.4)'" 
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.3)'">
-                ✕ Close
-            </button>
-        </div>
-    `;
-
-    modalOverlay.appendChild(modalContent);
-    document.body.appendChild(modalOverlay);
-
-    // Add event listeners
-    const closeButton = document.getElementById('closeDeployModal');
-    closeButton.addEventListener('click', closeDeployModal);
-
-    // Close modal when clicking outside
-    modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) {
-            closeDeployModal();
-        }
-    });
-
-    // Close modal with Escape key
-    const handleEscape = function(e) {
-        if (e.key === 'Escape') {
-            closeDeployModal();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-
-    console.log('✅ Deploy workflow modal displayed');
-}
-
-function closeDeployModal() {
-    console.log('🔒 Closing deploy modal');
-
-    const modalOverlay = document.getElementById('deployModalOverlay');
-    if (modalOverlay) {
-        // Add fade out animation
-        modalOverlay.style.animation = 'fadeOut 0.3s ease-out';
-
-        setTimeout(() => {
-            modalOverlay.remove();
-            console.log('✅ Deploy modal closed and removed from DOM');
-        }, 300);
     }
 }
 
@@ -9401,7 +8859,6 @@ function parseGeneratedCodeFiles(codeResults) {
                     language: 'python'
                 });
                 console.log(`✅ Added separate test file: ${fileName}`);
-                updateAnalyticsCounter('devUnittestsGenerated');
             }
         } else if (fileName.includes('main_implementation.py') ||
                    result.story_title === 'Main Implementation' ||
@@ -9450,7 +8907,6 @@ function parseGeneratedCodeFiles(codeResults) {
                     });
                     console.log(`✅ Added test code from combined file: ${testFileName}`);
                 }
-                updateAnalyticsCounter('devUnittestsGenerated');
             } else {
                 // If tests not requested, treat everything as main code
                 files.push({
@@ -10300,16 +9756,6 @@ window.updateDeveloperStatusDisplay = updateDeveloperStatusDisplay;
 window.updateStatusItem = updateStatusItem;
 window.initializeDeveloperStatus = initializeDeveloperStatus;
 window.setupDeveloperButtonStates = setupDeveloperButtonStates;
-
-// Add analytics functions to global exports
-window.showAnalytics = showAnalytics;
-window.resetAnalytics = resetAnalytics;
-window.updateAnalyticsCounter = updateAnalyticsCounter;
-
-// Add Build and Deploy functions
-window.deployCode = deployCode;
-window.closeDeployModal = closeDeployModal;
-
 // ================================================================================================
 // INITIALIZATION COMPLETE
 // ================================================================================================
