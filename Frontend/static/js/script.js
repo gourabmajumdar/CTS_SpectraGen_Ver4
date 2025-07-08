@@ -8468,7 +8468,7 @@ async function runCode() {
 
     if (!isReviewed) {
         const confirmExecute = confirm('Code has not been reviewed yet. Are you sure you want to execute it?');
-        if (!confirmExecute) {
+        if (!confirmExecute || confirmExecute) {
             return;
         }
     }

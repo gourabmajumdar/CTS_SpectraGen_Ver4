@@ -3230,10 +3230,13 @@ def execute_code():
     """Execute selected test scripts on chosen remote device with real progress tracking"""
     global generated_scripts_info
 
+
     # NEW: Check if this is a developer workflow execution
     data = request.get_json() or {}
     workflow_type = data.get('workflow_type', 'qa')
+    print(f"[GENERATED_SCRIPTS_INFO]: {len(generated_scripts_info)} and {generated_scripts_info}")
 
+    '''
     if workflow_type == 'developer':
         print("[DEV_EXECUTE] Developer workflow execution detected")
 
@@ -3298,6 +3301,84 @@ def execute_code():
                     'success': False,
                     'message': 'No application code available for execution. Please generate code first.'
                 })
+
+        # Now apply filtering to only include main code files
+        print(f"[DEV_EXECUTE] Before filtering: {len(generated_scripts_info)} scripts")
+        filter_generated_scripts_for_main_code_only()
+        print(f"[DEV_EXECUTE] After filtering: {len(generated_scripts_info)} scripts")
+
+        if len(generated_scripts_info) == 0:
+            return jsonify({
+                'success': False,
+                'message': 'No main application code files found for execution. All files appear to be unit tests.'
+            })
+    '''
+    if workflow_type == 'developer':
+        print("[DEV_EXECUTE] Developer workflow execution detected")
+
+        # CRITICAL FIX: ALWAYS reload developer scripts for developer workflow
+        # regardless of generated_scripts_info state
+        print("[DEV_EXECUTE] Force loading developer scripts from generatedApplicationCode...")
+
+        # Load from the global generatedApplicationCode variable
+        global generatedApplicationCode
+        if generatedApplicationCode and len(generatedApplicationCode) > 0:
+            print(f"[DEV_EXECUTE] Found {len(generatedApplicationCode)} application code files")
+
+            # Clear existing scripts to avoid mixing QA and developer scripts
+            generated_scripts_info.clear()
+
+            # Convert generatedApplicationCode to generated_scripts_info format
+            for i, app_code in enumerate(generatedApplicationCode):
+                script_id = i + 1
+                script_name = app_code.get('file_name', f'app_code_{script_id}.py')
+
+                # Ensure .py extension
+                if not script_name.endswith('.py'):
+                    script_name += '.py'
+
+                # Create file path (check multiple possible locations)
+                possible_paths = [
+                    os.path.join(os.getcwd(), '..', 'generated-scripts', script_name),
+                    os.path.join(os.getcwd(), '..', 'dev-scripts', script_name),
+                    os.path.join(os.getcwd(), 'generated-scripts', script_name),
+                    os.path.join(os.getcwd(), 'dev-scripts', script_name)
+                ]
+
+                file_path = None
+                for path in possible_paths:
+                    if os.path.exists(path):
+                        file_path = path
+                        print(f"[DEV_EXECUTE] Found script at: {path}")
+                        break
+
+                if not file_path:
+                    # Create the file if it doesn't exist
+                    file_path = possible_paths[0]  # Use first path as default
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+                    # Write the generated code to file
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(app_code.get('generated_code', '# Generated application code'))
+                    print(f"[DEV_EXECUTE] Created script file at: {file_path}")
+
+                # Add to generated_scripts_info
+                script_info = {
+                    'id': script_id,
+                    'script_name': script_name,
+                    'test_case_name': app_code.get('story_title', f'Application Code {script_id}'),
+                    'file_path': file_path
+                }
+                generated_scripts_info.append(script_info)
+                print(f"[DEV_EXECUTE] Added script: {script_name}")
+
+            print(f"[DEV_EXECUTE] Successfully loaded {len(generated_scripts_info)} scripts for execution")
+        else:
+            print("[DEV_EXECUTE] ERROR: No generatedApplicationCode found!")
+            return jsonify({
+                'success': False,
+                'message': 'No application code available for execution. Please generate code first.'
+            })
 
         # Now apply filtering to only include main code files
         print(f"[DEV_EXECUTE] Before filtering: {len(generated_scripts_info)} scripts")
