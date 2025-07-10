@@ -914,7 +914,6 @@
             </div>
 
             <!-- Codebase Manager Content (MISSING IN OLD VERSION) -->
-            <!--
             <div class="codebase-manager-content hide" id="codebaseManagerContent">
                 <div class="mode-header">
                     <h2>📚 Codebase Manager</h2>
@@ -950,90 +949,7 @@
                     </div>
                 </div>
             </div>
-            -->
 
-            <!-- Replace your existing codebase-manager-content section with this enhanced version -->
-            <div class="codebase-manager-content hide" id="codebaseManagerContent">
-                <div class="mode-header">
-                    <h2>📚 Codebase Manager</h2>
-                    <p>Upload and manage your existing codebase for context-aware code generation</p>
-                </div>
-
-                <!-- Input Method Toggle -->
-                <div class="input-method-toggle">
-                    <button type="button" id="inputMethodToggle" onclick="toggleCodebaseInputMethod()"
-                            class="toggle-btn" title="Switch input method">
-                        🔗 Use GitHub URL Instead
-                    </button>
-                </div>
-
-                <!-- ZIP Upload Section (Default) -->
-                <div id="zipUploadSection" class="input-section">
-                    <div class="upload-area codebase-upload">
-                        <div class="upload-icon">📦</div>
-                        <div class="upload-text">Upload your codebase as a ZIP file</div>
-                        <div class="upload-subtext">Include source code, libraries, and utilities for AI context</div>
-                        <input type="file" id="codebaseFileInput" accept=".zip">
-                    </div>
-                </div>
-
-                <!-- GitHub URL Section (Hidden by default) -->
-                <div id="githubUrlSection" class="input-section" style="display: none;">
-                    <div class="github-input-area">
-                        <div class="github-icon">🔗</div>
-                        <div class="github-text">Enter GitHub Repository URL</div>
-                        <div class="github-subtext">Public repositories only • We'll download the latest code</div>
-
-                        <div class="github-url-container">
-                            <input type="url"
-                                   id="githubUrlInput"
-                                   placeholder="https://github.com/username/repository"
-                                   oninput="onGithubUrlInput()"
-                                   class="github-url-input">
-                            <div id="githubUrlValidation" class="github-validation"></div>
-                        </div>
-
-                        <div class="github-examples">
-                            <strong>Supported formats:</strong>
-                            <div class="example-urls">
-                                <code>https://github.com/username/repo</code><br>
-                                <code>https://github.com/username/repo/tree/branch-name</code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Unified Action Button -->
-                <button class="ingest-btn codebase" onclick="uploadCodebase()" id="uploadCodebaseBtn">
-                    Analyze Codebase
-                </button>
-
-                <!-- Additional button for GitHub analysis (hidden by default) -->
-                <button class="ingest-btn codebase github" onclick="analyzeGithubRepo()"
-                        id="analyzeGithubBtn" style="display: none;" disabled>
-                    Analyze Repository
-                </button>
-
-                <!-- Existing codebase analysis section -->
-                <div class="codebase-analysis" id="codebaseAnalysis" style="display: none;">
-                    <h3>📊 Codebase Analysis Results</h3>
-                    <div class="analysis-grid">
-                        <div class="analysis-card">
-                            <h4>📚 Libraries Found</h4>
-                            <div class="analysis-value" id="analysisLibraries">0</div>
-                            <div class="analysis-list" id="librariesList"></div>
-                        </div>
-                        <div class="analysis-card">
-                            <h4>⚙️ Functions Detected</h4>
-                            <div class="analysis-value" id="analysisFunctions">0</div>
-                        </div>
-                        <div class="analysis-card">
-                            <h4>🔍 Patterns Found</h4>
-                            <div class="analysis-value" id="analysisPatterns">0</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- Analytics Content Section - UPDATED STRUCTURE -->
             <div class="analytics-content hide" id="analyticsContent">
                 <div class="analytics-header">
