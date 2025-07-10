@@ -8467,7 +8467,7 @@ async function runCode() {
     const isReviewed = reviewBtn && reviewBtn.textContent.includes('Review Completed');
 
     if (!isReviewed) {
-        const confirmExecute = confirm('Code has not been reviewed yet. Are you sure you want to execute it?');
+        const confirmExecute = confirm('Please Complete Code Review before executing');
         if (!confirmExecute || confirmExecute) {
             return;
         }
@@ -9201,9 +9201,6 @@ function addUnitTestTab(testFile) {
                     </button>
                     <button class="toolbar-btn" onclick="downloadTabContent('unittest')" title="Download tests">
                         📥 Download
-                    </button>
-                    <button class="toolbar-btn" onclick="copyTabContent('unittest')" title="Copy to clipboard">
-                        📋 Copy
                     </button>
                     <button class="toolbar-btn" onclick="runTests()" title="Run tests">
                         ▶️ Run Tests

@@ -835,6 +835,33 @@ def signal_handler(sig, frame):
     except Exception as e:
         print(f"[CLEANUP] Error cleaning test_case folder: {e}")
 
+    # NEW: Clean up dev-scripts and generated-scripts folders
+    # Clean up dev-scripts folder (same pattern as test_case folder)
+    try:
+        dev_scripts_folder = os.path.join(os.getcwd(), '..', 'dev-scripts')
+        if os.path.exists(dev_scripts_folder):
+            for filename in os.listdir(dev_scripts_folder):
+                file_path = os.path.join(dev_scripts_folder, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            os.rmdir(dev_scripts_folder)  # Remove empty folder
+            print("[CLEANUP] Cleaned dev-scripts folder")
+    except Exception as e:
+        print(f"[CLEANUP] Error cleaning dev-scripts folder: {e}")
+
+    # Clean up generated-scripts folder (same pattern as test_case folder)
+    try:
+        generated_scripts_folder = app.config['GENERATED_SCRIPTS_FOLDER']
+        if os.path.exists(generated_scripts_folder):
+            for filename in os.listdir(generated_scripts_folder):
+                file_path = os.path.join(generated_scripts_folder, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            os.rmdir(generated_scripts_folder)  # Remove empty folder
+            print("[CLEANUP] Cleaned generated-scripts folder")
+    except Exception as e:
+        print(f"[CLEANUP] Error cleaning generated-scripts folder: {e}")
+
     print("[SHUTDOWN] Cleanup complete")
     sys.exit(0)
 
